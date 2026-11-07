@@ -59,6 +59,8 @@ async function open(keys) {
   if (!await crypto.subtle.verify('HMAC', mk, b64(P.m), data)) return false;
   const ek = await crypto.subtle.importKey('raw', keys.slice(0, 32), 'AES-CBC', false, ['decrypt']);
   const html = new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, ek, ct));
+  // Dokud se přihlašovací stránka načítá, document.write by sbírku jen připsal pod formulář
+  if (document.readyState !== 'complete') await new Promise(r => addEventListener('load', r, { once: true }));
   document.open(); document.write(html); document.close();
   document.title = EN ? 'Collection' : 'Sbírka';
   return true;
